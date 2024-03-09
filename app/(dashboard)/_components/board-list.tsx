@@ -8,16 +8,18 @@ import { useApiMutation } from "@/hooks/use-api-mutation";
 import { toast } from "sonner";
 import { BoardCard } from "./board-card.tsx";
 import NewBoardButton from "./new-board-button";
+import { useRouter } from "next/navigation";
 
 interface BoardListProps {
   orgId: string;
   query: {
     search?: string;
-    favorites?: boolean;
+    favorites?: string;
   };
 }
 const BoardList = ({ orgId, query }: BoardListProps) => {
-  const data = useQuery(api.boards.get, { orgId }); // Call API to get data
+  const router = useRouter();
+  const data = useQuery(api.boards.get, { orgId, ...query});
 
   const { mutate, pending } = useApiMutation(api.board.create);
 
@@ -30,7 +32,7 @@ const BoardList = ({ orgId, query }: BoardListProps) => {
       title: "Untitled",
     }).then((id) => {
       toast.success("Board created successfully");
-      // TODO: Redirect to the board
+      router.push(`/board/${id}`);
     });
   };
 
@@ -107,7 +109,7 @@ const BoardList = ({ orgId, query }: BoardListProps) => {
             authorId={board.authorId}
             orgId={board.orgId}
             createdAt={board._creationTime}
-            isFavorite={false}
+            isFavorite={board.isFavorite}
           />
         ))}
       </div>
